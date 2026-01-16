@@ -87,32 +87,46 @@ def main():
     """
     Main training loop.
 
-    Sets up the device, dataset, dataloader, model, loss function, and optimizer.
-    Runs training for 3 epochs and prints training loss each epoch.
+    Sets up the device, datasets, dataloaders, model, loss function, and optimizer.
+    Runs training for 3 epochs, printing training and validation metrics each epoch.
     """
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # Use GPU if available
 
     train_dataset = APTOSDataset(
-        csv_path="data/raw/train.csv",
+        csv_path="data/processed/train.csv",
         images_dir="data/raw/train_images",
-        transform=get_default_transforms()  # Apply default image transformations
+        transform=get_default_transforms()  # Apply advanced augmentations for training
     )
 
-    # Create DataLoader
+    val_dataset = APTOSDataset(
+        csv_path="data/processed/val.csv",
+        images_dir="data/raw/train_images",
+        transform=get_default_transforms()  # Apply basic transforms for validation (could be a simpler transform function)
+    )
+
     train_loader = DataLoader(
         train_dataset,
         batch_size=16,
         shuffle=True,
         num_workers=0
-        )  
+    )
+
+    val_loader = DataLoader(
+        val_dataset,
+        batch_size=16,
+        shuffle=False,
+        num_workers=0
+    )
 
     model = get_model().to(device)  # Initialize model and move to device
     criterion = nn.CrossEntropyLoss()  # Define loss function
     optimizer = optim.Adam(model.parameters(), lr=1e-4)  # Define optimizer
 
-    for epoch in range(3):  # Train for 3 epochs
+    num_epochs = 3
+    for epoch in range(num_epochs):  # Train for 3 epochs
         train_loss = train_one_epoch(model, train_loader, criterion, optimizer, device)
-        print(f"Epoch {epoch+1} - Train Loss: {train_loss:.4f}")  # Print loss
+        val_loss, val_acc = evaluate(model, val_loader, criterion, device)
+        print(f"Epoch {epoch+1}: Train Loss={train_loss:.4f} | Val Loss={val_loss:.4f} | Val Acc={val_acc:.4f}")
 
 
 if __name__ == "__main__":
