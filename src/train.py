@@ -6,6 +6,16 @@ from torchvision.models import resnet18
 
 from src.data_loading import APTOSDataset, get_default_transforms, get_advanced_transforms
 from src.sampling import get_balanced_sampler
+from src.losses import FocalLoss
+
+"""
+implement alpha also if required/wanted
+
+alpha = torch.tensor([1.0, 2.0, 2.0, 3.0, 3.0])  # ejemplo
+criterion = FocalLoss(gamma=2.0, alpha=alpha.to(device))
+
+"""
+
 
 
 def get_model(num_classes=5):
@@ -122,7 +132,7 @@ def main():
     )
 
     model = get_model().to(device)  # Initialize model and move to device
-    criterion = nn.CrossEntropyLoss()  # Define loss function
+    criterion = FocalLoss(gamma=2.0)  # Define loss function
     optimizer = optim.Adam(model.parameters(), lr=1e-4)  # Define optimizer
 
     num_epochs = 3
