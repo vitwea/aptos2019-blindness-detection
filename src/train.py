@@ -4,7 +4,8 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision.models import resnet18
 
-from src.data_loading import APTOSDataset, get_default_transforms
+from src.data_loading import APTOSDataset, get_default_transforms, get_advanced_transforms
+
 
 
 
@@ -95,7 +96,7 @@ def main():
     train_dataset = APTOSDataset(
         csv_path="data/processed/train.csv",
         images_dir="data/raw/train_images",
-        transform=get_default_transforms()  # Apply advanced augmentations for training
+        transform=get_advanced_transforms()  # Apply advanced augmentations for training
     )
 
     val_dataset = APTOSDataset(
