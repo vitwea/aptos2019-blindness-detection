@@ -5,8 +5,7 @@ from torch.utils.data import DataLoader
 from torchvision.models import resnet18
 
 from src.data_loading import APTOSDataset, get_default_transforms, get_advanced_transforms
-
-
+from src.sampling import get_balanced_sampler
 
 
 def get_model(num_classes=5):
@@ -102,13 +101,16 @@ def main():
     val_dataset = APTOSDataset(
         csv_path="data/processed/val.csv",
         images_dir="data/raw/train_images",
-        transform=get_default_transforms()  # Apply basic transforms for validation (could be a simpler transform function)
+        transform=get_default_transforms()  # Apply basic transforms for validation
     )
+
+    labels = train_dataset.data["diagnosis"].values  # Extract labels for balanced sampling
+    sampler = get_balanced_sampler(labels)  # Create balanced sampler
 
     train_loader = DataLoader(
         train_dataset,
         batch_size=16,
-        shuffle=True,
+        sampler=sampler,  # Use sampler instead of shuffle
         num_workers=0
     )
 
